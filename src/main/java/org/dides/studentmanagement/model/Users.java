@@ -21,10 +21,10 @@ public class Users {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
+
     private String firstname;
 
-    @NotNull
+
     private String lastname;
 
     @NotNull
