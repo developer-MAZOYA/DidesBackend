@@ -1,16 +1,11 @@
 package org.dides.studentmanagement.model;
 
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import jakarta.persistence.Id;
-
 
 @Setter
 @AllArgsConstructor
@@ -25,10 +20,11 @@ public class AdmissionNextOfKin {
     private Long kinId;
 
     private String name;
-
     private String mobileNumber;
-
     private String residence;
-
     private String relationship;
+
+    @OneToOne(mappedBy = "nextOfKin")
+    @JsonIgnore
+    private Admission admission;
 }
