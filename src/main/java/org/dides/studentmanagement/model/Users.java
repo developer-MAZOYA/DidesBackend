@@ -27,6 +27,8 @@ public class Users {
 
     private String lastname;
 
+    private String registrationNumber;
+
     @NotNull
     @Email
     @Column(unique = true, nullable = false)

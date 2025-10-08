@@ -21,13 +21,13 @@ public class UsersController {
     private UserService userService;
 
 
-    @PostMapping("/register")
+    @PostMapping("/auth/register")
     public ResponseEntity<UserDTO> register(@RequestBody UserDTO userDTO) {
         UserDTO createdUser = userService.register(userDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
         try {
             String token = userService.verify(authRequest);

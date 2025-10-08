@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.Id;
 
 
 @Setter
@@ -22,13 +22,13 @@ public class AdmissionNextOfKin {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long kinId;
 
     private String name;
 
     private String mobileNumber;
 
-    private String Residence;
+    private String residence;
 
-    private String Relationship;
+    private String relationship;
 }
