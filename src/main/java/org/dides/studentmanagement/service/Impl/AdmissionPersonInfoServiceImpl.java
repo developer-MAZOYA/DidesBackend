@@ -15,10 +15,10 @@ public class AdmissionPersonInfoServiceImpl implements AdmissionPersonInfoServic
     @Autowired
     private PersonalInfoRepo personalInfoRepo;
 
-    @Override
-    public List<AdmissionPersonInfo> getAllPersonalInfo() {
-        return personalInfoRepo.findAll();
-    }
+//    @Override
+//    public List<AdmissionPersonInfo> getAllPersonalInfo() {
+//        return personalInfoRepo.findAll();
+//    }
 
     @Override
     public Optional<AdmissionPersonInfo> getPersonalInfoById(Long id) {
@@ -51,7 +51,7 @@ public class AdmissionPersonInfoServiceImpl implements AdmissionPersonInfoServic
             updatedInfo.setDisability(personalInfo.isDisability());
             updatedInfo.setMaritalStatus(personalInfo.getMaritalStatus());
             updatedInfo.setDateOfBirth(personalInfo.getDateOfBirth());
-            updatedInfo.setSex(personalInfo.isSex());
+            updatedInfo.setSex(personalInfo.getSex());
             updatedInfo.setCitizenship(personalInfo.getCitizenship());
             updatedInfo.setHomeAddress(personalInfo.getHomeAddress());
             updatedInfo.setMobileNumber(personalInfo.getMobileNumber());

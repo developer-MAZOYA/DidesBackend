@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.dides.studentmanagement.enums.MaritalStatus;
+import org.dides.studentmanagement.enums.Sex;
 
 import java.util.Date;
 
@@ -30,7 +31,10 @@ public class AdmissionPersonInfo {
     private MaritalStatus maritalStatus;
 
     private Date dateOfBirth;
-    private boolean sex;
+
+    @Enumerated(EnumType.STRING)
+    private Sex sex;
+
     private String citizenship;
     private String homeAddress;
     private String mobileNumber;

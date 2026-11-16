@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public interface AdmissionPersonInfoService {
 
-    List<AdmissionPersonInfo> getAllPersonalInfo();
+   // List<AdmissionPersonInfo> getAllPersonalInfo();
 
     Optional<AdmissionPersonInfo> getPersonalInfoById(Long id);
 

@@ -1,5 +1,6 @@
 package org.dides.studentmanagement.service;
 
+import org.dides.studentmanagement.enums.QualificationType;
 import org.dides.studentmanagement.model.AdmissionEdu;
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +17,8 @@ public interface AdmissionEduService {
 
     void deleteEducationBackground(Long eduId);
 
-    List<AdmissionEdu> getEducationByQualificationType(String qualificationType);
+
+    List<AdmissionEdu> getEducationByQualificationType(QualificationType qualificationType);
 
     List<AdmissionEdu> getEducationBySchoolName(String schoolName);
 
@@ -24,5 +26,5 @@ public interface AdmissionEduService {
 
     List<AdmissionEdu> getEducationByCountry(String country);
 
-    Optional<AdmissionEdu> getEducationByIndexAndQualification(String indexNumber, String qualificationType);
+    Optional<AdmissionEdu> getEducationByIndexAndQualification(String indexNumber, QualificationType qualificationType);
 }

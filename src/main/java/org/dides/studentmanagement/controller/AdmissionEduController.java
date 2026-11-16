@@ -1,5 +1,6 @@
 package org.dides.studentmanagement.controller;
 
+import org.dides.studentmanagement.enums.QualificationType;
 import org.dides.studentmanagement.model.AdmissionEdu;
 import org.dides.studentmanagement.service.AdmissionEduService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +65,7 @@ public class AdmissionEduController {
 
     // Filter endpoints
     @GetMapping("/qualification/{qualificationType}")
-    public ResponseEntity<List<AdmissionEdu>> getEducationByQualificationType(@PathVariable String qualificationType) {
+    public ResponseEntity<List<AdmissionEdu>> getEducationByQualificationType(@PathVariable QualificationType qualificationType) {
         List<AdmissionEdu> educationBackgrounds = educationService.getEducationByQualificationType(qualificationType);
         return ResponseEntity.ok(educationBackgrounds);
     }
@@ -90,7 +91,7 @@ public class AdmissionEduController {
     @GetMapping("/search/unique")
     public ResponseEntity<AdmissionEdu> getEducationByIndexAndQualification(
             @RequestParam String indexNumber,
-            @RequestParam String qualificationType) {
+            @RequestParam QualificationType qualificationType) {
         Optional<AdmissionEdu> educationBackground = educationService.getEducationByIndexAndQualification(indexNumber, qualificationType);
         return educationBackground.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

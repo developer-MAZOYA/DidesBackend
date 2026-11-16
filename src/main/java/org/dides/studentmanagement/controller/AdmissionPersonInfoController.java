@@ -16,12 +16,12 @@ public class AdmissionPersonInfoController {
 
     @Autowired
     private AdmissionPersonInfoService personalInfoService;
-
-    @GetMapping("/listAll")
-    public ResponseEntity<List<AdmissionPersonInfo>> getAllPersonalInfo() {
-        List<AdmissionPersonInfo> personalInfoList = personalInfoService.getAllPersonalInfo();
-        return ResponseEntity.ok(personalInfoList);
-    }
+//
+//    @GetMapping("/listAll")
+//    public ResponseEntity<List<AdmissionPersonInfo>> getAllPersonalInfo() {
+//        List<AdmissionPersonInfo> personalInfoList = personalInfoService.getAllPersonalInfo();
+//        return ResponseEntity.ok(personalInfoList);
+//    }
 
     @GetMapping("/view/{id}")
     public ResponseEntity<AdmissionPersonInfo> getPersonalInfoById(@PathVariable Long id) {

@@ -1,5 +1,6 @@
 package org.dides.studentmanagement.service.Impl;
 
+import org.dides.studentmanagement.enums.QualificationType;
 import org.dides.studentmanagement.model.AdmissionEdu;
 import org.dides.studentmanagement.repo.EduRepo;
 import org.dides.studentmanagement.service.AdmissionEduService;
@@ -55,12 +56,12 @@ public class AdmissionEduServiceImpl implements AdmissionEduService {
             updatedEducation.setFromYear(educationBackground.getFromYear());
             updatedEducation.setToYear(educationBackground.getToYear());
             updatedEducation.setSchoolName(educationBackground.getSchoolName());
-            updatedEducation.setExaminationAuthority(educationBackground.getExaminationAuthority());
-            updatedEducation.setExaminationCentre(educationBackground.getExaminationCentre());
+          //  updatedEducation.setExaminationAuthority(educationBackground.getExaminationAuthority());
+         //   updatedEducation.setExaminationCentre(educationBackground.getExaminationCentre());
             updatedEducation.setCountry(educationBackground.getCountry());
             updatedEducation.setDivision(educationBackground.getDivision());
             updatedEducation.setIndexNumber(educationBackground.getIndexNumber());
-            updatedEducation.setDescription(educationBackground.getDescription());
+         //   updatedEducation.setDescription(educationBackground.getDescription());
 
             return educationRepository.save(updatedEducation);
         } else {
@@ -78,7 +79,7 @@ public class AdmissionEduServiceImpl implements AdmissionEduService {
     }
 
     @Override
-    public List<AdmissionEdu> getEducationByQualificationType(String qualificationType) {
+    public List<AdmissionEdu> getEducationByQualificationType(QualificationType qualificationType) {
         return educationRepository.findByQualificationType(qualificationType);
     }
 
@@ -98,7 +99,7 @@ public class AdmissionEduServiceImpl implements AdmissionEduService {
     }
 
     @Override
-    public Optional<AdmissionEdu> getEducationByIndexAndQualification(String indexNumber, String qualificationType) {
+    public Optional<AdmissionEdu> getEducationByIndexAndQualification(String indexNumber, QualificationType qualificationType) {
         return educationRepository.findByIndexNumberAndQualificationType(indexNumber, qualificationType);
     }
 }

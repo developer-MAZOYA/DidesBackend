@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.dides.studentmanagement.enums.QualificationType;
 
 @Entity
 @Table(name = "education_background")
@@ -20,17 +21,19 @@ public class AdmissionEdu {
     private Long eduId;
 
     @Column(nullable = false)
-    private String qualificationType; // CPEE, CSEE, ACSEE, OTHER
 
-    private String fromYear;
-    private String toYear;
+    @Enumerated(EnumType.STRING)
+    private QualificationType qualificationType; // CPEE, CSEE, ACSEE, OTHER
+
+    @Column(name = "from_year")
+    private Integer fromYear;
+    @Column(name = "to_year")
+    private Integer toYear;
     private String schoolName;
-    private String examinationAuthority;
-    private String examinationCentre;
     private String country;
     private String division;
     private String indexNumber;
-    private String description;
+
 
     @ManyToOne
     @JoinColumn(name = "admission_id")
