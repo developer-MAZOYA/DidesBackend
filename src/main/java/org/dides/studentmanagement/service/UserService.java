@@ -1,7 +1,10 @@
 package org.dides.studentmanagement.service;
 
 import org.dides.studentmanagement.dto.AuthRequest;
+import org.dides.studentmanagement.dto.AuthResponse;
 import org.dides.studentmanagement.dto.UserDTO;
+import org.dides.studentmanagement.enums.Roles;
+import org.dides.studentmanagement.model.UserPrincipal;
 import org.dides.studentmanagement.model.Users;
 import org.dides.studentmanagement.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +16,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,7 +32,7 @@ public class UserService {
     private JWTService jwtService;
 
     @Autowired
-    AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
     @Autowired
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -36,50 +41,55 @@ public class UserService {
         this.userRepo = userRepository;
     }
 
-    // REGISTER USER (no role, no enabled flag)
-    public UserDTO register(UserDTO userDTO) {
-        Users user = new Users();
-        user.setFirstname(userDTO.getFirstname());
-        user.setLastname(userDTO.getLastname());
-        user.setEmail(userDTO.getEmail());
-        user.setPassword(encoder.encode(userDTO.getPassword()));
-
-
-        Users savedUser = userRepo.save(user);
-
-        return new UserDTO(
-                savedUser.getFirstname(),
-                savedUser.getLastname(),
-                savedUser.getEmail(),
-                savedUser.getPassword()
-
-        );
-    }
-
-    // VERIFY USER LOGIN
-    public String verify(AuthRequest authRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword())
-        );
-
-        if (authentication.isAuthenticated()) {
-            Users user = userRepo.findByEmail(authRequest.getEmail());
-            if (user == null) {
-                throw new RuntimeException("User not found");
-            }
-
-            return jwtService.generateToken(
-                    user.getEmail(),
-                    user.getFirstname(),
-                    user.getLastname()
-
-            );
-        } else {
-            return "fail";
+    // ---------- mapper ----------
+    private UserDTO toDto(Users u) {
+        UserDTO d = new UserDTO();
+        d.setFirstname(u.getFirstname());
+        d.setLastname(u.getLastname());
+        d.setEmail(u.getEmail());
+        d.setRole(u.getRole());
+        if (u.getRole() != null) {
+            d.setPermissions(u.getRole().getPermissions()
+                    .stream().map(Enum::name).collect(Collectors.toSet()));
         }
+        return d; // no password
     }
 
-    // CHANGE PASSWORD
+    // ---------- register ----------
+    public UserDTO register(UserDTO dto) {
+        Users user = new Users();
+        user.setFirstname(dto.getFirstname());
+        user.setLastname(dto.getLastname());
+        user.setEmail(dto.getEmail());
+        user.setPassword(encoder.encode(dto.getPassword()));
+        user.setRole(dto.getRole() != null ? dto.getRole() : Roles.STUDENT);
+        return toDto(userRepo.save(user));
+    }
+
+    // ---------- login ----------
+    public AuthResponse verify(AuthRequest authRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        authRequest.getEmail(), authRequest.getPassword()));
+
+        if (!authentication.isAuthenticated()) {
+            throw new RuntimeException("Authentication failed");
+        }
+
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        Users user = principal.getUser();
+
+        String token = jwtService.generateToken(
+                user.getEmail(), user.getFirstname(), user.getLastname());
+
+        Set<String> roles = Set.of(user.getRole().name());
+        Set<String> perms = user.getRole().getPermissions().stream()
+                .map(Enum::name).collect(Collectors.toSet());
+
+        return new AuthResponse(token, roles, perms);
+    }
+
+    // ---------- change password ----------
     public ResponseEntity<?> changePassword(String authorizationHeader,
                                             String currentPassword,
                                             String newPassword) {
@@ -102,8 +112,7 @@ public class UserService {
             }
 
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(email, currentPassword)
-            );
+                    new UsernamePasswordAuthenticationToken(email, currentPassword));
 
             if (authentication.isAuthenticated()) {
                 Users user = userRepo.findByEmail(email);
@@ -111,11 +120,8 @@ public class UserService {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND)
                             .body(Collections.singletonMap("error", "User not found"));
                 }
-
-
                 user.setPassword(encoder.encode(newPassword));
                 userRepo.save(user);
-
                 return ResponseEntity.ok(Collections.singletonMap("message", "Password updated successfully"));
             }
         } catch (BadCredentialsException e) {
@@ -126,7 +132,6 @@ public class UserService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Collections.singletonMap("error", "Password change failed. Please try again."));
         }
-
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Collections.singletonMap("error", "Authentication failed"));
     }
@@ -138,53 +143,40 @@ public class UserService {
         return null;
     }
 
-    // LIST USERS
+    // ---------- CRUD ----------
     public List<UserDTO> list() {
-        return userRepo.findAll()
-                .stream()
-                .map(user -> new UserDTO(
-
-                        user.getFirstname(),
-                        user.getLastname(),
-                        user.getEmail(),
-                        user.getPassword()
-
-                ))
-                .collect(Collectors.toList());
+        return userRepo.findAll().stream().map(this::toDto).collect(Collectors.toList());
     }
 
     public Optional<UserDTO> findById(Long id) {
-        return userRepo.findById(id)
-                .map(user -> new UserDTO(
-                        user.getFirstname(),
-                        user.getLastname(),
-                        user.getEmail(),
-                        user.getPassword()
-                ));
+        return userRepo.findById(id).map(this::toDto);
     }
 
-    public UserDTO updateUser(Long id, UserDTO userDTO) {
+    public UserDTO updateUser(Long id, UserDTO dto) {
         Users user = userRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        user.setFirstname(userDTO.getFirstname());
-        user.setLastname(userDTO.getLastname());
-        user.setEmail(userDTO.getEmail());
-        user.setPassword(encoder.encode(userDTO.getPassword()));
+        user.setFirstname(dto.getFirstname());
+        user.setLastname(dto.getLastname());
+        user.setEmail(dto.getEmail());
 
-        if (userDTO.getPassword() != null && !userDTO.getPassword().trim().isEmpty()) {
-            user.setPassword(encoder.encode(userDTO.getPassword()));
+        if (dto.getPassword() != null && !dto.getPassword().trim().isEmpty()) {
+            user.setPassword(encoder.encode(dto.getPassword()));
+        }
+        // ✅ allow role change here too (protected at controller level)
+        if (dto.getRole() != null) {
+            user.setRole(dto.getRole());
         }
 
-        Users updatedUser = userRepo.save(user);
+        return toDto(userRepo.save(user));
+    }
 
-        return new UserDTO(
-                updatedUser.getFirstname(),
-                updatedUser.getLastname(),
-                updatedUser.getEmail(),
-                updatedUser.getPassword()
-
-        );
+    // ✅ NEW: admin-only role update (keeps updateUser focused)
+    public UserDTO updateRole(Long id, Roles role) {
+        Users user = userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setRole(role);
+        return toDto(userRepo.save(user));
     }
 
     public Users getUserById(Long userId) {
@@ -193,9 +185,6 @@ public class UserService {
     }
 
     public List<String> getAllNames() {
-        return userRepo.findAll()
-                .stream()
-                .map(Users::getFirstname)
-                .toList();
+        return userRepo.findAll().stream().map(Users::getFirstname).toList();
     }
 }

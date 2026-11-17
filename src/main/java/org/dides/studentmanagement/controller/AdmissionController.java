@@ -6,6 +6,7 @@ import org.dides.studentmanagement.service.AdmissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,8 +18,9 @@ public class AdmissionController {
     @Autowired
     private AdmissionService admissionService;
 
-    // 1. Start admission process
+    // 1. Start admission process — anonymous applicants may start
     @PostMapping("/Start")
+    @PreAuthorize("isAnonymous() or hasAuthority('ADMISSION_CREATE')")
     public ResponseEntity<?> createAdmission(@RequestBody CreateAdmissionRequest request) {
         try {
             AdmissionResponse response = admissionService.createAdmission(request);
@@ -30,7 +32,9 @@ public class AdmissionController {
 
     // 2. Step 1: Personal Information
     @PutMapping("/{admissionId}/personal-info")
-    public ResponseEntity<?> updatePersonalInfo(@PathVariable Long admissionId, @RequestBody AdmissionPersonInfo personalInfo) {
+    @PreAuthorize("isAnonymous() or hasAuthority('ADMISSION_UPDATE')")
+    public ResponseEntity<?> updatePersonalInfo(@PathVariable Long admissionId,
+                                                @RequestBody AdmissionPersonInfo personalInfo) {
         try {
             AdmissionResponse response = admissionService.updatePersonalInfo(admissionId, personalInfo);
             return ResponseEntity.ok(response);
@@ -41,7 +45,9 @@ public class AdmissionController {
 
     // 3. Step 2: Next of Kin
     @PutMapping("/{admissionId}/next-of-kin")
-    public ResponseEntity<?> updateNextOfKin(@PathVariable Long admissionId, @RequestBody AdmissionNextOfKin nextOfKin) {
+    @PreAuthorize("isAnonymous() or hasAuthority('ADMISSION_UPDATE')")
+    public ResponseEntity<?> updateNextOfKin(@PathVariable Long admissionId,
+                                             @RequestBody AdmissionNextOfKin nextOfKin) {
         try {
             AdmissionResponse response = admissionService.updateNextOfKin(admissionId, nextOfKin);
             return ResponseEntity.ok(response);
@@ -52,7 +58,9 @@ public class AdmissionController {
 
     // 4. Step 3: Education Background
     @PutMapping("/{admissionId}/education")
-    public ResponseEntity<?> updateEducationBackgrounds(@PathVariable Long admissionId, @RequestBody List<AdmissionEdu> educationBackgrounds) {
+    @PreAuthorize("isAnonymous() or hasAuthority('ADMISSION_UPDATE')")
+    public ResponseEntity<?> updateEducationBackgrounds(@PathVariable Long admissionId,
+                                                        @RequestBody List<AdmissionEdu> educationBackgrounds) {
         try {
             AdmissionResponse response = admissionService.updateEducationBackgrounds(admissionId, educationBackgrounds);
             return ResponseEntity.ok(response);
@@ -63,7 +71,9 @@ public class AdmissionController {
 
     // 5. Step 4: Sponsor Information
     @PutMapping("/{admissionId}/sponsor")
-    public ResponseEntity<?> updateSponsor(@PathVariable Long admissionId, @RequestBody AdmissionSponsor sponsor) {
+    @PreAuthorize("isAnonymous() or hasAuthority('ADMISSION_UPDATE')")
+    public ResponseEntity<?> updateSponsor(@PathVariable Long admissionId,
+                                           @RequestBody AdmissionSponsor sponsor) {
         try {
             AdmissionResponse response = admissionService.updateSponsor(admissionId, sponsor);
             return ResponseEntity.ok(response);
@@ -74,7 +84,9 @@ public class AdmissionController {
 
     // 6. Step 5: Course Selection
     @PutMapping("/{admissionId}/courses")
-    public ResponseEntity<?> updateCourseSelection(@PathVariable Long admissionId, @RequestBody CourseSelectionRequest request) {
+    @PreAuthorize("isAnonymous() or hasAuthority('ADMISSION_UPDATE')")
+    public ResponseEntity<?> updateCourseSelection(@PathVariable Long admissionId,
+                                                   @RequestBody CourseSelectionRequest request) {
         try {
             AdmissionResponse response = admissionService.updateCourseSelection(admissionId, request);
             return ResponseEntity.ok(response);
@@ -85,6 +97,7 @@ public class AdmissionController {
 
     // 7. Final submission
     @PostMapping("/{admissionId}/submit")
+    @PreAuthorize("isAnonymous() or hasAuthority('ADMISSION_UPDATE')")
     public ResponseEntity<?> submitAdmission(@PathVariable Long admissionId) {
         try {
             AdmissionResponse response = admissionService.submitAdmission(admissionId);
@@ -94,8 +107,10 @@ public class AdmissionController {
         }
     }
 
-    // Get endpoints remain the same...
+    // ---------------- READ ENDPOINTS ----------------
+
     @GetMapping("/{admissionId}")
+    @PreAuthorize("isAnonymous() or hasAuthority('ADMISSION_READ')")
     public ResponseEntity<?> getAdmissionById(@PathVariable Long admissionId) {
         try {
             AdmissionResponse response = admissionService.getAdmissionById(admissionId);
@@ -106,6 +121,7 @@ public class AdmissionController {
     }
 
     @GetMapping("/email/{email}")
+    @PreAuthorize("isAnonymous() or hasAuthority('ADMISSION_READ')")
     public ResponseEntity<?> getAdmissionByEmail(@PathVariable String email) {
         try {
             AdmissionResponse response = admissionService.getAdmissionByEmail(email);
@@ -115,13 +131,16 @@ public class AdmissionController {
         }
     }
 
+    // Listing all admissions must NOT be anonymous — only staff
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMISSION_READ')")
     public ResponseEntity<List<AdmissionResponse>> getAllAdmissions() {
         List<AdmissionResponse> admissions = admissionService.getAllAdmissions();
         return ResponseEntity.ok(admissions);
     }
 
     @GetMapping("/{admissionId}/validate")
+    @PreAuthorize("isAnonymous() or hasAuthority('ADMISSION_READ')")
     public ResponseEntity<Boolean> validateAdmissionCompletion(@PathVariable Long admissionId) {
         try {
             boolean isValid = admissionService.validateAdmissionCompletion(admissionId);

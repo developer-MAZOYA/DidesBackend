@@ -5,6 +5,7 @@ import org.dides.studentmanagement.service.AdmissionCoursesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class AdmissionCoursesController {
     }
 
     @PostMapping("AddCourse")
+    @PreAuthorize("hasAuthority('COURSE_CREATE')")
     public ResponseEntity<AdmissionCourses> createCourse(@RequestBody AdmissionCourses course) {
         try {
             AdmissionCourses createdCourse = coursesService.createCourse(course);
@@ -41,6 +43,7 @@ public class AdmissionCoursesController {
     }
 
     @PutMapping("Course-Update/{courseId}")
+    @PreAuthorize("hasAuthority('COURSE_UPDATE')")
     public ResponseEntity<AdmissionCourses> updateCourse(
             @PathVariable Long courseId,
             @RequestBody AdmissionCourses course) {
@@ -53,6 +56,7 @@ public class AdmissionCoursesController {
     }
 
     @DeleteMapping("Course-Delete/{courseId}")
+    @PreAuthorize("hasAuthority('COURSE_DELETE')")
     public ResponseEntity<Void> deleteCourse(@PathVariable Long courseId) {
         try {
             coursesService.deleteCourse(courseId);

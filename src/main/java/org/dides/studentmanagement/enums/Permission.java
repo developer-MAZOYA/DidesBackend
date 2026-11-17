@@ -1,0 +1,22 @@
+package org.dides.studentmanagement.enums;
+
+public enum Permission {
+    // Users
+    USER_READ, USER_CREATE, USER_UPDATE, USER_DELETE,
+
+    // Admissions
+    ADMISSION_READ, ADMISSION_CREATE, ADMISSION_UPDATE,
+    ADMISSION_DELETE, ADMISSION_APPROVE,
+
+    // Students
+    STUDENT_READ, STUDENT_CREATE, STUDENT_UPDATE, STUDENT_DELETE,
+
+    // Courses
+    COURSE_READ, COURSE_CREATE, COURSE_UPDATE, COURSE_DELETE,
+
+    // Reports
+    REPORT_VIEW, REPORT_EXPORT,
+
+    // System
+    SYSTEM_SETTINGS, ROLE_MANAGE, AUDIT_VIEW
+}

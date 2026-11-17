@@ -1,17 +1,18 @@
 package org.dides.studentmanagement.dto;
 
-
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Setter
+import java.util.Set;
+
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class AuthResponse {
     private String token;
-
-    public AuthResponse(String token) {
-        this.token = token;
-    }
-
+    private Set<String> roles;         // ✅ NEW
+    private Set<String> permissions;   // ✅ NEW
 }
-
